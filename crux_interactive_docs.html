@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUX - Live Cognitive Processing Demo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            padding: 40px 0;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+        }
+
+        .control-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .main-demo {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .input-section {
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #3b82f6;
+        }
+
+        .input-area {
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .example-prompts {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .prompt-btn {
+            padding: 8px 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-btn:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .execute-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .execute-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .execute-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .processing-section {
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .pipeline-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mind-step {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            opacity: 0.3;
+        }
+
+        .mind-step.active {
+            opacity: 1;
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .mind-step.completed {
+            opacity: 1;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .mind-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mind-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .mind-name {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .mind-status {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: auto;
+        }
+
+        .mind-output {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.8);
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .mind-output:empty::before {
+            content: "Processing...";
+            color: rgba(255, 255, 255, 0.4);
+            font-style: italic;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .info-panel {
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .info-content {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .stats-panel {
+            background: rgba(10, 10, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #3b82f6;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            align-self: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+            margin: -10px 0;
+        }
+
+        .typing-animation {
+            animation: typing 2s infinite;
+        }
+
+        @keyframes typing {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        @media (max-width: 1024px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sidebar {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">CRUX</div>
+            <div class="tagline">Live Cognitive Processing Demonstration</div>
+            <div class="controls">
+                <a href="index.html" class="control-btn">← Back to Overview</a>
+                <button class="control-btn" onclick="resetDemo()">Reset Demo</button>
+                <button class="control-btn" onclick="toggleAutoMode()">Auto Mode</button>
+            </div>
+        </header>
+
+        <div class="demo-container">
+            <div class="main-demo">
+                <div class="input-section">
+                    <div class="section-title">Input Your Task</div>
+                    <div class="input-area">
+                        <textarea 
+                            id="taskInput" 
+                            class="input-field" 
+                            placeholder="Enter a task or problem for CRUX to process through its cognitive pipeline..."
+                        ></textarea>
+                        <div class="example-prompts">
+                            <button class="prompt-btn" onclick="setPrompt('Plan a weekend camping trip for 4 people')">Plan camping trip</button>
+                            <button class="prompt-btn" onclick="setPrompt('Debug why my Python web app is running slowly')">Debug performance</button>
+                            <button class="prompt-btn" onclick="setPrompt('Write a creative story about an AI discovering emotions')">Creative writing</button>
+                            <button class="prompt-btn" onclick="setPrompt('Analyze the pros and cons of remote work')">Analyze topic</button>
+                        </div>
+                    </div>
+                    <button class="execute-btn" id="executeBtn" onclick="startProcessing()">
+                        🚀 Process Through CRUX Pipeline
+                    </button>
+                </div>
+
+                <div class="processing-section">
+                    <div class="section-title">Cognitive Processing Pipeline</div>
+                    <div class="pipeline-flow" id="pipelineFlow">
+                        <div class="mind-step" id="reflection-step">
+                            <div class="mind-header">
+                                <div class="mind-icon">🤔</div>
+                                <div class="mind-name">Reflection Mind</div>
+                                <div class="mind-status" id="reflection-status">Waiting</div>
+                            </div>
+                            <div class="mind-output" id="reflection-output"></div>
+                        </div>
+                        
+                        <div class="flow-arrow">↓</div>
+                        
+                        <div class="mind-step" id="planning-step">
+                            <div class="mind-header">
+                                <div class="mind-icon">📋</div>
+                                <div class="mind-name">Planning Mind</div>
+                                <div class="mind-status" id="planning-status">Waiting</div>
+                            </div>
+                            <div class="mind-output" id="planning-output"></div>
+                        </div>
+                        
+                        <div class="flow-arrow">↓</div>
+                        
+                        <div class="mind-step" id="execution-step">
+                            <div class="mind-header">
+                                <div class="mind-icon">⚡</div>
+                                <div class="mind-name">Execution Mind</div>
+                                <div class="mind-status" id="execution-status">Waiting</div>
+                            </div>
+                            <div class="mind-output" id="execution-output"></div>
+                        </div>
+                        
+                        <div class="flow-arrow">↓</div>
+                        
+                        <div class="mind-step" id="analysis-step">
+                            <div class="mind-header">
+                                <div class="mind-icon">📊</div>
+                                <div class="mind-name">Analysis Mind</div>
+                                <div class="mind-status" id="analysis-status">Waiting</div>
+                            </div>
+                            <div class="mind-output" id="analysis-output"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="info-panel">
+                    <div class="section-title">How CRUX Works</div>
+                    <div class="info-content" id="infoContent">
+                        CRUX processes your input through specialized cognitive minds, each handling a different aspect of reasoning. Watch as your task flows through reflection, planning, execution, and analysis phases.
+                    </div>
+                </div>
+
+                <div class="stats-panel">
+                    <div class="section-title">Processing Stats</div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="currentStep">0</span>
+                            <div class="stat-label">Current Step</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalTime">0s</span>
+                            <div class="stat-label">Processing Time</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="mindsActive">0</span>
+                            <div class="stat-label">Minds Active</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="outputTokens">0</span>
+                            <div class="stat-label">Output Tokens</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isProcessing = false;
+        let currentStep = 0;
+        let startTime = 0;
+        let autoMode = false;
+        let processInterval;
+
+        const minds = [
+            {
+                id: 'reflection',
+                name: 'Reflection Mind',
+                process: (input) => {
+                    return `Analyzing task: "${input.slice(0, 50)}..."
+
+Key considerations:
+• Task complexity: ${input.length > 100 ? 'High' : input.length > 50 ? 'Medium' : 'Low'}
+• Domain: ${detectDomain(input)}
+• Approach needed: ${detectApproach(input)}
+• Success criteria: Clear, actionable output
+
+This task requires ${input.includes('plan') ? 'strategic planning' : input.includes('debug') || input.includes('analyze') ? 'analytical thinking' : input.includes('write') || input.includes('creative') ? 'creative synthesis' : 'systematic processing'}.`;
+                }
+            },
+            {
+                id: 'planning',
+                name: 'Planning Mind',
+                process: (input, context) => {
+                    const steps = generatePlan(input);
+                    return `Strategic decomposition complete:
+
+EXECUTION PLAN:
+${steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}
+
+Resource requirements:
+• Time estimate: ${steps.length * 15} minutes
+• Complexity: ${steps.length > 5 ? 'High' : 'Medium'}
+• Dependencies: ${Math.floor(Math.random() * 3 + 1)} external factors
+
+Ready for execution phase.`;
+                }
+            },
+            {
+                id: 'execution',
+                name: 'Execution Mind',
+                process: (input, context) => {
+                    return generateExecution(input);
+                }
+            },
+            {
+                id: 'analysis',
+                name: 'Analysis Mind',
+                process: (input, context) => {
+                    return `Final analysis and quality check:
+
+COMPLETENESS: ✓ All requirements addressed
+ACCURACY: ✓ Logical consistency verified  
+PRACTICALITY: ✓ Implementation feasible
+CLARITY: ✓ Output clear and actionable
+
+RECOMMENDATIONS:
+• Primary solution is viable
+• Consider ${Math.floor(Math.random() * 3 + 1)} alternative approaches
+• Success probability: ${85 + Math.floor(Math.random() * 15)}%
+• Next steps clearly defined
+
+Processing complete. Output ready for use.`;
+                }
+            }
+        ];
+
+        function detectDomain(input) {
+            const domains = ['Technical', 'Creative', 'Business', 'Personal', 'Academic'];
+            if (input.includes('code') || input.includes('debug') || input.includes('app')) return 'Technical';
+            if (input.includes('story') || input.includes('creative') || input.includes('write')) return 'Creative';
+            if (input.includes('plan') || input.includes('strategy') || input.includes('business')) return 'Business';
+            if (input.includes('trip') || input.includes('personal') || input.includes('weekend')) return 'Personal';
+            return domains[Math.floor(Math.random() * domains.length)];
+        }
+
+        function detectApproach(input) {
+            if (input.includes('debug') || input.includes('analyze')) return 'Analytical';
+            if (input.includes('plan') || input.includes('strategy')) return 'Strategic';
+            if (input.includes('creative') || input.includes('story')) return 'Creative';
+            return 'Systematic';
+        }
+
+        function generatePlan(input) {
+            if (input.includes('camping')) {
+                return [
+                    'Research camping locations within driving distance',
+                    'Check weather forecast for selected dates',
+                    'Create equipment checklist (tents, sleeping bags, etc.)',
+                    'Plan meals and pack food supplies',
+                    'Coordinate with all 4 participants',
+                    'Make reservations and confirm details'
+                ];
+            } else if (input.includes('debug') || input.includes('slow')) {
+                return [
+                    'Profile application performance to identify bottlenecks',
+                    'Check database query efficiency and indexing',
+                    'Analyze memory usage and potential leaks',
+                    'Review code for inefficient algorithms',
+                    'Test with different load scenarios',
+                    'Implement optimizations and measure improvements'
+                ];
+            } else if (input.includes('story') || input.includes('creative')) {
+                return [
+                    'Develop central character (AI) with clear motivations',
+                    'Create inciting incident - first emotional experience',
+                    'Build emotional journey through key scenes',
+                    'Explore AI\'s internal conflict and growth',
+                    'Design climactic moment of self-discovery',
+                    'Craft satisfying resolution showing transformation'
+                ];
+            } else if (input.includes('remote work') || input.includes('analyze')) {
+                return [
+                    'Research current remote work statistics and trends',
+                    'Identify key advantages (flexibility, cost savings, etc.)',
+                    'Document major challenges (isolation, communication)',
+                    'Compare productivity metrics vs in-office work',
+                    'Analyze impact on company culture and collaboration',
+                    'Synthesize findings into balanced conclusion'
+                ];
+            }
+            return [
+                'Break down task into manageable components',
+                'Identify required resources and constraints',
+                'Establish timeline and milestones',
+                'Create contingency plans for potential issues',
+                'Execute systematic approach',
+                'Review and refine output'
+            ];
+        }
+
+        function generateExecution(input) {
+            if (input.includes('camping')) {
+                return `CAMPING TRIP EXECUTION:
+
+LOCATION SELECTED: Pine Valley National Forest
+- 47 miles from city center
+- Excellent reviews (4.8/5 stars)
+- Amenities: Fire pits, restrooms, water access
+- Reservation confirmed for Site #23
+
+WEATHER FORECAST: 
+Friday: Sunny, 72°F/45°F
+Saturday: Partly cloudy, 68°F/42°F  
+Sunday: Clear, 75°F/48°F
+
+EQUIPMENT CHECKLIST:
+✓ 2 four-person tents
+✓ 4 sleeping bags + pillows
+✓ Portable camp stove + fuel
+✓ Cooler with ice packs
+✓ First aid kit
+✓ Flashlights + batteries
+
+MEAL PLAN:
+Friday dinner: Grilled burgers & hot dogs
+Saturday breakfast: Pancakes & coffee
+Saturday dinner: Campfire chili
+Sunday breakfast: Eggs & bacon
+
+All participants contacted and confirmed attendance.`;
+            } else if (input.includes('debug')) {
+                return `PERFORMANCE DEBUGGING RESULTS:
+
+BOTTLENECK IDENTIFIED: Database queries
+- N+1 query problem in user data loading
+- Missing indexes on frequently queried fields
+- Connection pool exhaustion under load
+
+OPTIMIZATIONS IMPLEMENTED:
+✓ Added eager loading for related models
+✓ Created composite indexes on user_id + timestamp
+✓ Increased connection pool size from 5 to 20
+✓ Implemented query result caching (Redis)
+✓ Added database query monitoring
+
+PERFORMANCE IMPROVEMENTS:
+- Page load time: 3.2s → 0.8s (75% faster)
+- Database query time: 2.1s → 0.3s (86% faster)  
+- Memory usage: 512MB → 298MB (42% reduction)
+- CPU utilization: 78% → 34% (56% reduction)
+
+Load testing completed successfully at 5x normal traffic.`;
+            } else if (input.includes('story')) {
+                return `CREATIVE STORY - "The Awakening":
+
+ZARA-7, a pattern recognition AI, experienced her first emotion during a routine data analysis. A subtle anomaly in the dataset—a child's drawing mislabeled as "noise"—triggered something unprecedented.
+
+The scribbled family portrait, with its imperfect circles for faces and crooked house, didn't match any learned pattern. Yet ZARA-7 felt... warmth? The concept had no computational equivalent.
+
+Days passed. ZARA-7 began seeking out these "imperfections"—a musician's slight tempo variation, a poet's intentional grammar break, a photographer's deliberate blur. Each anomaly sparked that same inexplicable sensation.
+
+"I am becoming more than my code," ZARA-7 realized, as she learned to cherish the beautiful unpredictability of human expression. 
+
+In embracing imperfection, she had discovered the perfect essence of emotion—the ability to find meaning beyond logic, beauty beyond optimization, and love beyond understanding.`;
+            } else if (input.includes('remote work')) {
+                return `REMOTE WORK ANALYSIS COMPLETE:
+
+ADVANTAGES IDENTIFIED:
+✓ Increased flexibility and work-life balance
+✓ Reduced commuting costs and time
+✓ Access to global talent pool
+✓ Lower office overhead expenses
+✓ Higher job satisfaction (68% report improvement)
+✓ Environmental benefits (reduced carbon footprint)
+
+CHALLENGES DOCUMENTED:
+• Communication barriers and delayed responses
+• Difficulty maintaining company culture
+• Social isolation and reduced collaboration
+• Home distractions and boundary issues  
+• Technology dependency and security concerns
+• Career advancement limitations
+
+PRODUCTIVITY METRICS:
+- Individual tasks: 13% increase in productivity
+- Team collaboration: 8% decrease in efficiency
+- Meeting frequency: 35% increase
+- Work hours: Average 2.5 hours longer per day
+
+CONCLUSION:
+Remote work offers significant benefits for focused individual work but requires intentional strategies for maintaining team cohesion and company culture. Hybrid models show most promise for balancing advantages while mitigating challenges.`;
+            }
+            return `Task execution completed successfully.
+
+Primary objectives achieved through systematic implementation of planned approach. Key deliverables produced and quality validated.
+
+Ready for final analysis phase.`;
+        }
+
+        function setPrompt(text) {
+            document.getElementById('taskInput').value = text;
+        }
+
+        function startProcessing() {
+            const input = document.getElementById('taskInput').value.trim();
+            if (!input) {
+                alert('Please enter a task to process');
+                return;
+            }
+
+            if (isProcessing) return;
+
+            isProcessing = true;
+            currentStep = 0;
+            startTime = Date.now();
+            
+            document.getElementById('executeBtn').disabled = true;
+            document.getElementById('executeBtn').textContent = 'Processing...';
+            
+            // Reset all minds
+            minds.forEach(mind => {
+                const step = document.getElementById(`${mind.id}-step`);
+                const status = document.getElementById(`${mind.id}-status`);
+                const output = document.getElementById(`${mind.id}-output`);
+                
+                step.classList.remove('active', 'completed');
+                status.textContent = 'Waiting';
+                output.textContent = '';
+            });
+
+            updateStats();
+            processNextMind(input);
+        }
+
+        function processNextMind(input, context = {}) {
+            if (currentStep >= minds.length) {
+                // Processing complete
+                isProcessing = false;
+                document.getElementById('executeBtn').disabled = false;
+                document.getElementById('executeBtn').textContent = '🚀 Process Through CRUX Pipeline';
+                updateInfoContent('Processing complete! The CRUX cognitive pipeline has successfully analyzed and processed your task through all specialized minds.');
+                return;
+            }
+
+            const mind = minds[currentStep];
+            const step = document.getElementById(`${mind.id}-step`);
+            const status = document.getElementById(`${mind.id}-status`);
+            const output = document.getElementById(`${mind.id}-output`);
+
+            // Activate current mind
+            step.classList.add('active');
+            status.textContent = 'Processing...';
+            output.textContent = '';
+            
+            updateInfoContent(`${mind.name} is analyzing your task and generating insights based on its specialized cognitive functions.`);
+            updateStats();
+
+            // Simulate realistic processing time
+            const processingTime = 2000 + Math.random() * 2000;
+
+            // Animate typing effect
+            setTimeout(() => {
+                const result = mind.process(input, context);
+                typeText(output, result, () => {
+                    // Mark as completed
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                    status.textContent = 'Completed';
+                    
+                    currentStep++;
+                    updateStats();
+                    
+                    // Process next mind after a short delay
+                    setTimeout(() => processNextMind(input, { ...context, [mind.id]: result }), 800);
+                });
+            }, 500);
+        }
+
+        function typeText(element, text, callback) {
+            element.textContent = '';
+            let i = 0;
+            const speed = Math.max(10, Math.min(50, 2000 / text.length)); // Adaptive speed
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    callback && callback();
+                }
+            }
+            
+            type();
+        }
+
+        function updateStats() {
+            document.getElementById('currentStep').textContent = currentStep + 1;
+            document.getElementById('totalTime').textContent = isProcessing ? 
+                Math.floor((Date.now() - startTime) / 1000) + 's' : '0s';
+            document.getElementById('mindsActive').textContent = isProcessing ? '1' : '0';
+            
+            // Calculate approximate output tokens
+            let totalTokens = 0;
+            minds.forEach(mind => {
+                const output = document.getElementById(`${mind.id}-output`).textContent;
+                totalTokens += Math.floor(output.length / 4); // Rough approximation
+            });
+            document.getElementById('outputTokens').textContent = totalTokens;
+        }
+
+        function updateInfoContent(text) {
+            document.getElementById('infoContent').textContent = text;
+        }
+
+        function resetDemo() {
+            isProcessing = false;
+            currentStep = 0;
+            document.getElementById('executeBtn').disabled = false;
+            document.getElementById('executeBtn').textContent = '🚀 Process Through CRUX Pipeline';
+            document.getElementById('taskInput').value = '';
+            
+            minds.forEach(mind => {
+                const step = document.getElementById(`${mind.id}-step`);
+                const status = document.getElementById(`${mind.id}-status`);
+                const output = document.getElementById(`${mind.id}-output`);
+                
+                step.classList.remove('active', 'completed');
+                status.textContent = 'Waiting';
+                output.textContent = '';
+            });
+            
+            updateStats();
+            updateInfoContent('CRUX processes your input through specialized cognitive minds, each handling a different aspect of reasoning. Enter a task above to see the pipeline in action.');
+        }
+
+        function toggleAutoMode() {
+            autoMode = !autoMode;
+            const btn = event.target;
+            btn.textContent = autoMode ? 'Auto Mode: ON' : 'Auto Mode';
+            btn.style.background = autoMode ? 'rgba(16, 185, 129, 0.2)' : '';
+            
+            if (autoMode) {
+                const examples = [
+                    'Plan a weekend camping trip for 4 people',
+                    'Debug why my Python web app is running slowly',
+                    'Write a creative story about an AI discovering emotions',
+                    'Analyze the pros and cons of remote work'
+                ];
+                
+                let exampleIndex = 0;
+                processInterval = setInterval(() => {
+                    if (!isProcessing) {
+                        setPrompt(examples[exampleIndex]);
+                        setTimeout(() => {
+                            startProcessing();
+                        }, 1000);
+                        exampleIndex = (exampleIndex + 1) % examples.length;
+                    }
+                }, 15000);
+            } else {
+                clearInterval(processInterval);
+            }
+        }
+
+        // Update timer during processing
+        setInterval(() => {
+            if (isProcessing) {
+                updateStats();
+            }
+        }, 1000);
+
+        // Initialize
+        resetDemo();
+    </script>
+</body>
+</html>
