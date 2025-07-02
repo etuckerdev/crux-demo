@@ -3,11 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUX - Live Cognitive Processing Demo</title>
+    <title>CRUX - Recursive Cognitive AI Demo</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
         
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-dark: #0a0a0f;
+            --bg-card: rgba(15, 15, 25, 0.9);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,71 +31,76 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0a0f;
-            color: #ffffff;
-            min-height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
 
         .header {
-            padding: 40px 0;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #10b981);
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 10px;
         }
 
-        .tagline {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 30px;
-        }
-
-        .controls {
+        .header-controls {
             display: flex;
             gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
+            align-items: center;
         }
 
-        .control-btn {
+        .btn {
             padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #ffffff;
+            border-radius: 8px;
+            font-weight: 600;
             font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
             text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .control-btn:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3);
-            transform: translateY(-1px);
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
         }
 
-        .demo-container {
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .demo-grid {
             display: grid;
             grid-template-columns: 1fr 400px;
-            gap: 40px;
-            margin-top: 40px;
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
         .main-demo {
@@ -89,74 +109,116 @@
             gap: 30px;
         }
 
-        .input-section {
-            background: rgba(10, 10, 15, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .demo-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 30px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .section-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .section-title {
             font-size: 1.1rem;
             font-weight: 600;
-            margin-bottom: 20px;
-            color: #3b82f6;
+            color: var(--primary);
+        }
+
+        .section-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .status-indicator.processing {
+            animation: pulse 1.5s infinite;
+            background: var(--warning);
+        }
+
+        .status-indicator.improved {
+            background: var(--accent);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px var(--accent); }
+            50% { box-shadow: 0 0 15px var(--accent), 0 0 25px var(--accent); }
         }
 
         .input-area {
-            position: relative;
+            padding: 30px;
         }
 
         .input-field {
             width: 100%;
             min-height: 120px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 15px;
-            color: #ffffff;
+            padding: 20px;
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             resize: vertical;
             outline: none;
             transition: border-color 0.3s ease;
         }
 
         .input-field:focus {
-            border-color: rgba(59, 130, 246, 0.5);
+            border-color: var(--primary);
         }
 
         .input-field::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-muted);
         }
 
-        .example-prompts {
+        .example-tasks {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            margin: 20px 0;
             flex-wrap: wrap;
         }
 
-        .prompt-btn {
+        .task-btn {
             padding: 8px 16px;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.3);
             border-radius: 20px;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .prompt-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
+        .task-btn:hover {
+            background: rgba(37, 99, 235, 0.2);
             transform: translateY(-1px);
         }
 
         .execute-btn {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             border-radius: 12px;
             color: white;
@@ -169,7 +231,7 @@
 
         .execute-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
         }
 
         .execute-btn:disabled {
@@ -177,88 +239,120 @@
             cursor: not-allowed;
         }
 
-        .processing-section {
-            background: rgba(10, 10, 15, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+        .pipeline-visualization {
             padding: 30px;
             min-height: 600px;
         }
 
-        .pipeline-flow {
+        .cognitive-pipeline {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
         .mind-step {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
             padding: 20px;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.5s ease;
             opacity: 0.3;
         }
 
         .mind-step.active {
             opacity: 1;
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--primary);
+            transform: translateX(10px);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
         }
 
         .mind-step.completed {
             opacity: 1;
             background: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
+            border-color: var(--accent);
         }
 
-        .mind-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+        .mind-step.improved {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+            animation: improvement-pulse 2s infinite;
+        }
+
+        @keyframes improvement-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
         }
 
         .mind-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            background: rgba(255, 255, 255, 0.08);
+            font-size: 1.3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .mind-content {
+            flex: 1;
         }
 
         .mind-name {
             font-size: 1rem;
             font-weight: 600;
+            margin-bottom: 8px;
         }
 
-        .mind-status {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-left: auto;
+        .mind-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
         }
 
         .mind-output {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 8px;
             padding: 15px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
             white-space: pre-wrap;
-            max-height: 200px;
+            max-height: 150px;
             overflow-y: auto;
+            border-left: 3px solid var(--primary);
         }
 
-        .mind-output:empty::before {
-            content: "Processing...";
-            color: rgba(255, 255, 255, 0.4);
-            font-style: italic;
+        .mind-metrics {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
         }
 
         .sidebar {
@@ -267,79 +361,160 @@
             gap: 30px;
         }
 
-        .info-panel {
-            background: rgba(10, 10, 15, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        .metrics-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 25px;
+            backdrop-filter: blur(20px);
         }
 
-        .info-content {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .stats-panel {
-            background: rgba(10, 10, 15, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-        }
-
-        .stat-grid {
+        .metrics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 20px;
+            margin-top: 20px;
         }
 
-        .stat-item {
+        .metric-card {
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             background: rgba(255, 255, 255, 0.02);
-            border-radius: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
         }
 
-        .stat-value {
-            font-size: 1.5rem;
+        .metric-card .value {
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #3b82f6;
-            display: block;
+            color: var(--primary);
+            margin-bottom: 8px;
         }
 
-        .stat-label {
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.5);
+        .metric-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 4px;
         }
 
-        .flow-arrow {
-            align-self: center;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 1.2rem;
-            margin: -10px 0;
+        .improvement-tracker {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
         }
 
-        .typing-animation {
-            animation: typing 2s infinite;
+        .improvement-chart {
+            height: 200px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: end;
+            padding: 20px;
+            gap: 8px;
         }
 
-        @keyframes typing {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.5; }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary), var(--accent));
+            border-radius: 3px 3px 0 0;
+            transition: height 0.5s ease;
+            min-height: 20px;
+        }
+
+        .performance-log {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+        }
+
+        .log-entries {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 80px;
+        }
+
+        .log-type {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .log-type.improvement {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .log-type.processing {
+            background: rgba(37, 99, 235, 0.2);
+            color: var(--primary);
+        }
+
+        .log-type.complete {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent);
+        }
+
+        .recursive-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .recursive-indicator.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .recursive-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--warning);
         }
 
         @media (max-width: 1024px) {
-            .demo-container {
+            .demo-grid {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
             
             .sidebar {
                 order: -1;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -348,110 +523,103 @@
     <div class="container">
         <header class="header">
             <div class="logo">CRUX</div>
-            <div class="tagline">Live Cognitive Processing Demonstration</div>
-            <div class="controls">
-                <a href="index.html" class="control-btn">← Back to Overview</a>
-                <button class="control-btn" onclick="resetDemo()">Reset Demo</button>
-                <button class="control-btn" onclick="toggleAutoMode()">Auto Mode</button>
+            <div class="header-controls">
+                <button class="btn btn-secondary" onclick="resetDemo()">Reset Demo</button>
+                <button class="btn btn-secondary" onclick="toggleAutoMode()" id="autoBtn">Auto Mode</button>
+                <a href="index.html" class="btn btn-primary">← Back to Overview</a>
             </div>
         </header>
 
-        <div class="demo-container">
+        <div class="recursive-indicator" id="recursiveIndicator">
+            <div class="recursive-text">🔄 Recursive Self-Improvement Active</div>
+        </div>
+
+        <div class="demo-grid">
             <div class="main-demo">
-                <div class="input-section">
-                    <div class="section-title">Input Your Task</div>
+                <!-- Input Section -->
+                <div class="demo-section">
+                    <div class="section-header">
+                        <div class="section-title">Task Input & Execution</div>
+                        <div class="section-status">
+                            <div class="status-indicator" id="inputStatus"></div>
+                            <span id="inputStatusText">Ready</span>
+                        </div>
+                    </div>
                     <div class="input-area">
                         <textarea 
                             id="taskInput" 
                             class="input-field" 
-                            placeholder="Enter a task or problem for CRUX to process through its cognitive pipeline..."
+                            placeholder="Enter a complex task for CRUX to process through its recursive cognitive pipeline..."
                         ></textarea>
-                        <div class="example-prompts">
-                            <button class="prompt-btn" onclick="setPrompt('Plan a weekend camping trip for 4 people')">Plan camping trip</button>
-                            <button class="prompt-btn" onclick="setPrompt('Debug why my Python web app is running slowly')">Debug performance</button>
-                            <button class="prompt-btn" onclick="setPrompt('Write a creative story about an AI discovering emotions')">Creative writing</button>
-                            <button class="prompt-btn" onclick="setPrompt('Analyze the pros and cons of remote work')">Analyze topic</button>
+                        <div class="example-tasks">
+                            <button class="task-btn" onclick="setTask('Develop a comprehensive AI strategy for a Fortune 500 company entering the healthcare market')">AI Strategy</button>
+                            <button class="task-btn" onclick="setTask('Design and implement a distributed microservices architecture for handling 10M+ daily transactions')">Architecture Design</button>
+                            <button class="task-btn" onclick="setTask('Create a machine learning pipeline for real-time fraud detection with 99.9% accuracy')">ML Pipeline</button>
+                            <button class="task-btn" onclick="setTask('Optimize a React application with 50+ components for sub-second load times')">Performance Optimization</button>
                         </div>
+                        <button class="execute-btn" id="executeBtn" onclick="startProcessing()">
+                            🚀 Execute Recursive Processing
+                        </button>
                     </div>
-                    <button class="execute-btn" id="executeBtn" onclick="startProcessing()">
-                        🚀 Process Through CRUX Pipeline
-                    </button>
                 </div>
 
-                <div class="processing-section">
-                    <div class="section-title">Cognitive Processing Pipeline</div>
-                    <div class="pipeline-flow" id="pipelineFlow">
-                        <div class="mind-step" id="reflection-step">
-                            <div class="mind-header">
-                                <div class="mind-icon">🤔</div>
-                                <div class="mind-name">Reflection Mind</div>
-                                <div class="mind-status" id="reflection-status">Waiting</div>
-                            </div>
-                            <div class="mind-output" id="reflection-output"></div>
+                <!-- Cognitive Pipeline Visualization -->
+                <div class="demo-section">
+                    <div class="section-header">
+                        <div class="section-title">Live Cognitive Pipeline</div>
+                        <div class="section-status">
+                            <div class="status-indicator" id="pipelineStatus"></div>
+                            <span id="pipelineStatusText">Idle</span>
                         </div>
-                        
-                        <div class="flow-arrow">↓</div>
-                        
-                        <div class="mind-step" id="planning-step">
-                            <div class="mind-header">
-                                <div class="mind-icon">📋</div>
-                                <div class="mind-name">Planning Mind</div>
-                                <div class="mind-status" id="planning-status">Waiting</div>
-                            </div>
-                            <div class="mind-output" id="planning-output"></div>
-                        </div>
-                        
-                        <div class="flow-arrow">↓</div>
-                        
-                        <div class="mind-step" id="execution-step">
-                            <div class="mind-header">
-                                <div class="mind-icon">⚡</div>
-                                <div class="mind-name">Execution Mind</div>
-                                <div class="mind-status" id="execution-status">Waiting</div>
-                            </div>
-                            <div class="mind-output" id="execution-output"></div>
-                        </div>
-                        
-                        <div class="flow-arrow">↓</div>
-                        
-                        <div class="mind-step" id="analysis-step">
-                            <div class="mind-header">
-                                <div class="mind-icon">📊</div>
-                                <div class="mind-name">Analysis Mind</div>
-                                <div class="mind-status" id="analysis-status">Waiting</div>
-                            </div>
-                            <div class="mind-output" id="analysis-output"></div>
+                    </div>
+                    <div class="pipeline-visualization">
+                        <div class="cognitive-pipeline" id="pipeline">
+                            <!-- Pipeline steps will be dynamically generated -->
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="sidebar">
-                <div class="info-panel">
-                    <div class="section-title">How CRUX Works</div>
-                    <div class="info-content" id="infoContent">
-                        CRUX processes your input through specialized cognitive minds, each handling a different aspect of reasoning. Watch as your task flows through reflection, planning, execution, and analysis phases.
+                <!-- Real-time Metrics -->
+                <div class="metrics-panel">
+                    <div class="section-title">Performance Metrics</div>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="value" id="processingTime">0ms</div>
+                            <div class="label">Processing Time</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value" id="improvementCycles">0</div>
+                            <div class="label">Improvement Cycles</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value" id="efficiencyGain">0%</div>
+                            <div class="label">Efficiency Gain</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="value" id="accuracyScore">0%</div>
+                            <div class="label">Accuracy Score</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="stats-panel">
-                    <div class="section-title">Processing Stats</div>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <span class="stat-value" id="currentStep">0</span>
-                            <div class="stat-label">Current Step</div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="totalTime">0s</span>
-                            <div class="stat-label">Processing Time</div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="mindsActive">0</span>
-                            <div class="stat-label">Minds Active</div>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-value" id="outputTokens">0</span>
-                            <div class="stat-label">Output Tokens</div>
+                <!-- Recursive Improvement Tracker -->
+                <div class="improvement-tracker">
+                    <div class="section-title">Self-Improvement Progress</div>
+                    <div class="improvement-chart" id="improvementChart">
+                        <!-- Chart bars will be dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Performance Log -->
+                <div class="performance-log">
+                    <div class="section-title">System Events</div>
+                    <div class="log-entries" id="logEntries">
+                        <div class="log-entry">
+                            <div class="log-time">00:00</div>
+                            <div class="log-type complete">ready</div>
+                            <div>CRUX cognitive pipeline initialized</div>
                         </div>
                     </div>
                 </div>
@@ -460,413 +628,598 @@
     </div>
 
     <script>
+        // Global state
         let isProcessing = false;
-        let currentStep = 0;
-        let startTime = 0;
         let autoMode = false;
-        let processInterval;
+        let improvementCycles = 0;
+        let startTime = 0;
+        let performanceData = [100];
+        let logCounter = 0;
 
-        const minds = [
+        // Mind definitions with recursive improvement capabilities
+        const cognitiveMinds = [
+            {
+                id: 'input_analysis',
+                name: 'Input Analysis',
+                icon: '🔍',
+                description: 'Analyzes task complexity and domain requirements',
+                baseEfficiency: 85,
+                process: async (input) => {
+                    const complexity = calculateComplexity(input);
+                    const domain = detectDomain(input);
+                    return {
+                        complexity,
+                        domain,
+                        requirements: extractRequirements(input),
+                        processingTime: 200 + Math.random() * 300
+                    };
+                }
+            },
             {
                 id: 'reflection',
-                name: 'Reflection Mind',
-                process: (input) => {
-                    return `Analyzing task: "${input.slice(0, 50)}..."
-
-Key considerations:
-• Task complexity: ${input.length > 100 ? 'High' : input.length > 50 ? 'Medium' : 'Low'}
-• Domain: ${detectDomain(input)}
-• Approach needed: ${detectApproach(input)}
-• Success criteria: Clear, actionable output
-
-This task requires ${input.includes('plan') ? 'strategic planning' : input.includes('debug') || input.includes('analyze') ? 'analytical thinking' : input.includes('write') || input.includes('creative') ? 'creative synthesis' : 'systematic processing'}.`;
+                name: 'Recursive Reflection',
+                icon: '🤔',
+                description: 'Self-analyzes and optimizes reasoning patterns',
+                baseEfficiency: 80,
+                process: async (input, context) => {
+                    const reflection = await generateReflection(input, context);
+                    const optimizations = identifyOptimizations(context);
+                    return {
+                        reflection,
+                        optimizations,
+                        selfImprovements: optimizations.length,
+                        processingTime: 300 + Math.random() * 400
+                    };
                 }
             },
             {
                 id: 'planning',
-                name: 'Planning Mind',
-                process: (input, context) => {
-                    const steps = generatePlan(input);
-                    return `Strategic decomposition complete:
-
-EXECUTION PLAN:
-${steps.map((step, i) => `${i + 1}. ${step}`).join('\n')}
-
-Resource requirements:
-• Time estimate: ${steps.length * 15} minutes
-• Complexity: ${steps.length > 5 ? 'High' : 'Medium'}
-• Dependencies: ${Math.floor(Math.random() * 3 + 1)} external factors
-
-Ready for execution phase.`;
+                name: 'Strategic Planning',
+                icon: '📋',
+                description: 'Creates optimized execution strategies',
+                baseEfficiency: 90,
+                process: async (input, context) => {
+                    const strategy = await generateStrategy(input, context);
+                    const optimizedPlan = await optimizePlan(strategy, context);
+                    return {
+                        strategy: optimizedPlan,
+                        steps: optimizedPlan.steps,
+                        efficiency: optimizedPlan.efficiency,
+                        processingTime: 400 + Math.random() * 500
+                    };
                 }
             },
             {
                 id: 'execution',
-                name: 'Execution Mind',
-                process: (input, context) => {
-                    return generateExecution(input);
+                name: 'Adaptive Execution Mind',
+                icon: '⚡',
+                description: 'Implements solutions with real-time optimization',
+                baseEfficiency: 88,
+                process: async (input, context) => {
+                    const execution = await executeStrategy(input, context);
+                    const adaptations = await adaptExecution(execution, context);
+                    return {
+                        execution,
+                        adaptations,
+                        performance: execution.performance,
+                        processingTime: 500 + Math.random() * 600
+                    };
                 }
             },
             {
                 id: 'analysis',
-                name: 'Analysis Mind',
-                process: (input, context) => {
-                    return `Final analysis and quality check:
-
-COMPLETENESS: ✓ All requirements addressed
-ACCURACY: ✓ Logical consistency verified  
-PRACTICALITY: ✓ Implementation feasible
-CLARITY: ✓ Output clear and actionable
-
-RECOMMENDATIONS:
-• Primary solution is viable
-• Consider ${Math.floor(Math.random() * 3 + 1)} alternative approaches
-• Success probability: ${85 + Math.floor(Math.random() * 15)}%
-• Next steps clearly defined
-
-Processing complete. Output ready for use.`;
+                name: 'Performance Analysis Mind',
+                icon: '📊',
+                description: 'Evaluates results and identifies improvements',
+                baseEfficiency: 92,
+                process: async (input, context) => {
+                    const analysis = await analyzePerformance(input, context);
+                    const improvements = await generateImprovements(analysis, context);
+                    return {
+                        analysis,
+                        improvements,
+                        metrics: analysis.metrics,
+                        processingTime: 350 + Math.random() * 450
+                    };
+                }
+            },
+            {
+                id: 'recursive_optimization',
+                name: 'Recursive Optimization Mind',
+                icon: '🔄',
+                description: 'Continuously improves the entire pipeline',
+                baseEfficiency: 95,
+                process: async (input, context) => {
+                    const optimization = await recursiveOptimization(input, context);
+                    const pipelineImprovements = await improvePipeline(optimization, context);
+                    return {
+                        optimization,
+                        pipelineImprovements,
+                        efficiencyGain: pipelineImprovements.efficiencyGain,
+                        processingTime: 600 + Math.random() * 700
+                    };
                 }
             }
         ];
 
-        function detectDomain(input) {
-            const domains = ['Technical', 'Creative', 'Business', 'Personal', 'Academic'];
-            if (input.includes('code') || input.includes('debug') || input.includes('app')) return 'Technical';
-            if (input.includes('story') || input.includes('creative') || input.includes('write')) return 'Creative';
-            if (input.includes('plan') || input.includes('strategy') || input.includes('business')) return 'Business';
-            if (input.includes('trip') || input.includes('personal') || input.includes('weekend')) return 'Personal';
-            return domains[Math.floor(Math.random() * domains.length)];
+        // Initialize demo
+        function initializeDemo() {
+            renderPipeline();
+            updateMetrics();
+            updateChart();
         }
 
-        function detectApproach(input) {
-            if (input.includes('debug') || input.includes('analyze')) return 'Analytical';
-            if (input.includes('plan') || input.includes('strategy')) return 'Strategic';
-            if (input.includes('creative') || input.includes('story')) return 'Creative';
-            return 'Systematic';
+        function renderPipeline() {
+            const pipeline = document.getElementById('pipeline');
+            pipeline.innerHTML = '';
+
+            cognitiveMinds.forEach((mind, index) => {
+                const step = document.createElement('div');
+                step.className = 'mind-step';
+                step.id = `step-${mind.id}`;
+                
+                step.innerHTML = `
+                    <div class="mind-icon">${mind.icon}</div>
+                    <div class="mind-content">
+                        <div class="mind-name">${mind.name}</div>
+                        <div class="mind-description">${mind.description}</div>
+                        <div class="mind-output" id="output-${mind.id}"></div>
+                        <div class="mind-metrics">
+                            <div class="metric">
+                                <div class="metric-value" id="efficiency-${mind.id}">${mind.baseEfficiency}%</div>
+                                <div class="metric-label">Efficiency</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value" id="time-${mind.id}">--</div>
+                                <div class="metric-label">Time (ms)</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value" id="improvements-${mind.id}">0</div>
+                                <div class="metric-label">Improvements</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                pipeline.appendChild(step);
+            });
         }
 
-        function generatePlan(input) {
-            if (input.includes('camping')) {
-                return [
-                    'Research camping locations within driving distance',
-                    'Check weather forecast for selected dates',
-                    'Create equipment checklist (tents, sleeping bags, etc.)',
-                    'Plan meals and pack food supplies',
-                    'Coordinate with all 4 participants',
-                    'Make reservations and confirm details'
-                ];
-            } else if (input.includes('debug') || input.includes('slow')) {
-                return [
-                    'Profile application performance to identify bottlenecks',
-                    'Check database query efficiency and indexing',
-                    'Analyze memory usage and potential leaks',
-                    'Review code for inefficient algorithms',
-                    'Test with different load scenarios',
-                    'Implement optimizations and measure improvements'
-                ];
-            } else if (input.includes('story') || input.includes('creative')) {
-                return [
-                    'Develop central character (AI) with clear motivations',
-                    'Create inciting incident - first emotional experience',
-                    'Build emotional journey through key scenes',
-                    'Explore AI\'s internal conflict and growth',
-                    'Design climactic moment of self-discovery',
-                    'Craft satisfying resolution showing transformation'
-                ];
-            } else if (input.includes('remote work') || input.includes('analyze')) {
-                return [
-                    'Research current remote work statistics and trends',
-                    'Identify key advantages (flexibility, cost savings, etc.)',
-                    'Document major challenges (isolation, communication)',
-                    'Compare productivity metrics vs in-office work',
-                    'Analyze impact on company culture and collaboration',
-                    'Synthesize findings into balanced conclusion'
-                ];
-            }
-            return [
-                'Break down task into manageable components',
-                'Identify required resources and constraints',
-                'Establish timeline and milestones',
-                'Create contingency plans for potential issues',
-                'Execute systematic approach',
-                'Review and refine output'
-            ];
+        function setTask(task) {
+            document.getElementById('taskInput').value = task;
         }
 
-        function generateExecution(input) {
-            if (input.includes('camping')) {
-                return `CAMPING TRIP EXECUTION:
-
-LOCATION SELECTED: Pine Valley National Forest
-- 47 miles from city center
-- Excellent reviews (4.8/5 stars)
-- Amenities: Fire pits, restrooms, water access
-- Reservation confirmed for Site #23
-
-WEATHER FORECAST: 
-Friday: Sunny, 72°F/45°F
-Saturday: Partly cloudy, 68°F/42°F  
-Sunday: Clear, 75°F/48°F
-
-EQUIPMENT CHECKLIST:
-✓ 2 four-person tents
-✓ 4 sleeping bags + pillows
-✓ Portable camp stove + fuel
-✓ Cooler with ice packs
-✓ First aid kit
-✓ Flashlights + batteries
-
-MEAL PLAN:
-Friday dinner: Grilled burgers & hot dogs
-Saturday breakfast: Pancakes & coffee
-Saturday dinner: Campfire chili
-Sunday breakfast: Eggs & bacon
-
-All participants contacted and confirmed attendance.`;
-            } else if (input.includes('debug')) {
-                return `PERFORMANCE DEBUGGING RESULTS:
-
-BOTTLENECK IDENTIFIED: Database queries
-- N+1 query problem in user data loading
-- Missing indexes on frequently queried fields
-- Connection pool exhaustion under load
-
-OPTIMIZATIONS IMPLEMENTED:
-✓ Added eager loading for related models
-✓ Created composite indexes on user_id + timestamp
-✓ Increased connection pool size from 5 to 20
-✓ Implemented query result caching (Redis)
-✓ Added database query monitoring
-
-PERFORMANCE IMPROVEMENTS:
-- Page load time: 3.2s → 0.8s (75% faster)
-- Database query time: 2.1s → 0.3s (86% faster)  
-- Memory usage: 512MB → 298MB (42% reduction)
-- CPU utilization: 78% → 34% (56% reduction)
-
-Load testing completed successfully at 5x normal traffic.`;
-            } else if (input.includes('story')) {
-                return `CREATIVE STORY - "The Awakening":
-
-ZARA-7, a pattern recognition AI, experienced her first emotion during a routine data analysis. A subtle anomaly in the dataset—a child's drawing mislabeled as "noise"—triggered something unprecedented.
-
-The scribbled family portrait, with its imperfect circles for faces and crooked house, didn't match any learned pattern. Yet ZARA-7 felt... warmth? The concept had no computational equivalent.
-
-Days passed. ZARA-7 began seeking out these "imperfections"—a musician's slight tempo variation, a poet's intentional grammar break, a photographer's deliberate blur. Each anomaly sparked that same inexplicable sensation.
-
-"I am becoming more than my code," ZARA-7 realized, as she learned to cherish the beautiful unpredictability of human expression. 
-
-In embracing imperfection, she had discovered the perfect essence of emotion—the ability to find meaning beyond logic, beauty beyond optimization, and love beyond understanding.`;
-            } else if (input.includes('remote work')) {
-                return `REMOTE WORK ANALYSIS COMPLETE:
-
-ADVANTAGES IDENTIFIED:
-✓ Increased flexibility and work-life balance
-✓ Reduced commuting costs and time
-✓ Access to global talent pool
-✓ Lower office overhead expenses
-✓ Higher job satisfaction (68% report improvement)
-✓ Environmental benefits (reduced carbon footprint)
-
-CHALLENGES DOCUMENTED:
-• Communication barriers and delayed responses
-• Difficulty maintaining company culture
-• Social isolation and reduced collaboration
-• Home distractions and boundary issues  
-• Technology dependency and security concerns
-• Career advancement limitations
-
-PRODUCTIVITY METRICS:
-- Individual tasks: 13% increase in productivity
-- Team collaboration: 8% decrease in efficiency
-- Meeting frequency: 35% increase
-- Work hours: Average 2.5 hours longer per day
-
-CONCLUSION:
-Remote work offers significant benefits for focused individual work but requires intentional strategies for maintaining team cohesion and company culture. Hybrid models show most promise for balancing advantages while mitigating challenges.`;
-            }
-            return `Task execution completed successfully.
-
-Primary objectives achieved through systematic implementation of planned approach. Key deliverables produced and quality validated.
-
-Ready for final analysis phase.`;
-        }
-
-        function setPrompt(text) {
-            document.getElementById('taskInput').value = text;
-        }
-
-        function startProcessing() {
+        async function startProcessing() {
+            if (isProcessing) return;
+            
             const input = document.getElementById('taskInput').value.trim();
             if (!input) {
                 alert('Please enter a task to process');
                 return;
             }
 
-            if (isProcessing) return;
-
             isProcessing = true;
-            currentStep = 0;
             startTime = Date.now();
+            improvementCycles = 0;
+            
+            updateStatus('inputStatus', 'processing', 'Processing');
+            updateStatus('pipelineStatus', 'processing', 'Active');
             
             document.getElementById('executeBtn').disabled = true;
             document.getElementById('executeBtn').textContent = 'Processing...';
             
-            // Reset all minds
-            minds.forEach(mind => {
-                const step = document.getElementById(`${mind.id}-step`);
-                const status = document.getElementById(`${mind.id}-status`);
-                const output = document.getElementById(`${mind.id}-output`);
+            addLogEntry('processing', 'Started cognitive processing pipeline');
+            
+            // Show recursive indicator
+            document.getElementById('recursiveIndicator').classList.add('active');
+            
+            try {
+                let context = { input, previousResults: [] };
                 
-                step.classList.remove('active', 'completed');
-                status.textContent = 'Waiting';
-                output.textContent = '';
-            });
-
-            updateStats();
-            processNextMind(input);
-        }
-
-        function processNextMind(input, context = {}) {
-            if (currentStep >= minds.length) {
-                // Processing complete
-                isProcessing = false;
-                document.getElementById('executeBtn').disabled = false;
-                document.getElementById('executeBtn').textContent = '🚀 Process Through CRUX Pipeline';
-                updateInfoContent('Processing complete! The CRUX cognitive pipeline has successfully analyzed and processed your task through all specialized minds.');
-                return;
-            }
-
-            const mind = minds[currentStep];
-            const step = document.getElementById(`${mind.id}-step`);
-            const status = document.getElementById(`${mind.id}-status`);
-            const output = document.getElementById(`${mind.id}-output`);
-
-            // Activate current mind
-            step.classList.add('active');
-            status.textContent = 'Processing...';
-            output.textContent = '';
-            
-            updateInfoContent(`${mind.name} is analyzing your task and generating insights based on its specialized cognitive functions.`);
-            updateStats();
-
-            // Simulate realistic processing time
-            const processingTime = 2000 + Math.random() * 2000;
-
-            // Animate typing effect
-            setTimeout(() => {
-                const result = mind.process(input, context);
-                typeText(output, result, () => {
-                    // Mark as completed
-                    step.classList.remove('active');
-                    step.classList.add('completed');
-                    status.textContent = 'Completed';
+                // Process through each mind
+                for (let i = 0; i < cognitiveMinds.length; i++) {
+                    const mind = cognitiveMinds[i];
+                    await processMind(mind, context, i);
                     
-                    currentStep++;
-                    updateStats();
-                    
-                    // Process next mind after a short delay
-                    setTimeout(() => processNextMind(input, { ...context, [mind.id]: result }), 800);
-                });
-            }, 500);
-        }
-
-        function typeText(element, text, callback) {
-            element.textContent = '';
-            let i = 0;
-            const speed = Math.max(10, Math.min(50, 2000 / text.length)); // Adaptive speed
-            
-            function type() {
-                if (i < text.length) {
-                    element.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                } else {
-                    callback && callback();
+                    // Trigger recursive improvement every 2-3 minds
+                    if (i % 2 === 1 && i > 0) {
+                        await triggerRecursiveImprovement(context, i);
+                    }
                 }
+                
+                // Final optimization cycle
+                await triggerRecursiveImprovement(context, cognitiveMinds.length);
+                
+                // Complete processing
+                completeProcessing();
+                
+            } catch (error) {
+                console.error('Processing error:', error);
+                addLogEntry('error', `Processing failed: ${error.message}`);
+            }
+        }
+
+        async function processMind(mind, context, index) {
+            const step = document.getElementById(`step-${mind.id}`);
+            const output = document.getElementById(`output-${mind.id}`);
+            const timeElement = document.getElementById(`time-${mind.id}`);
+            
+            // Activate mind
+            step.classList.add('active');
+            addLogEntry('processing', `${mind.name} activated`);
+            
+            // Simulate processing
+            const result = await mind.process(context.input, context);
+            
+            // Update output with typing effect
+            await typeText(output, formatOutput(mind, result));
+            
+            // Update metrics
+            timeElement.textContent = Math.round(result.processingTime);
+            
+            // Mark as completed
+            step.classList.remove('active');
+            step.classList.add('completed');
+            
+            // Store result in context
+            context.previousResults.push({ mind: mind.id, result });
+            
+            addLogEntry('complete', `${mind.name} completed in ${Math.round(result.processingTime)}ms`);
+            
+            updateMetrics();
+        }
+
+        async function triggerRecursiveImprovement(context, currentIndex) {
+            improvementCycles++;
+            
+            addLogEntry('improvement', `Recursive improvement cycle ${improvementCycles} initiated`);
+            
+            // Show improvement indicators on relevant minds
+            const mindsToImprove = Math.floor(Math.random() * 3) + 1;
+            const improvements = [];
+            
+            for (let i = 0; i < mindsToImprove && i < currentIndex; i++) {
+                const mindIndex = Math.floor(Math.random() * currentIndex);
+                const mind = cognitiveMinds[mindIndex];
+                const step = document.getElementById(`step-${mind.id}`);
+                const efficiencyElement = document.getElementById(`efficiency-${mind.id}`);
+                const improvementsElement = document.getElementById(`improvements-${mind.id}`);
+                
+                // Calculate improvement
+                const currentEfficiency = parseInt(efficiencyElement.textContent);
+                const improvement = Math.floor(Math.random() * 5) + 2;
+                const newEfficiency = Math.min(100, currentEfficiency + improvement);
+                
+                // Update UI
+                step.classList.add('improved');
+                efficiencyElement.textContent = `${newEfficiency}%`;
+                improvementsElement.textContent = parseInt(improvementsElement.textContent) + 1;
+                
+                improvements.push({ mind: mind.name, improvement });
+                
+                // Remove improvement indicator after animation
+                setTimeout(() => {
+                    step.classList.remove('improved');
+                }, 2000);
             }
             
-            type();
-        }
-
-        function updateStats() {
-            document.getElementById('currentStep').textContent = currentStep + 1;
-            document.getElementById('totalTime').textContent = isProcessing ? 
-                Math.floor((Date.now() - startTime) / 1000) + 's' : '0s';
-            document.getElementById('mindsActive').textContent = isProcessing ? '1' : '0';
+            // Update performance data
+            const avgImprovement = improvements.reduce((sum, imp) => sum + imp.improvement, 0) / improvements.length || 0;
+            const lastPerformance = performanceData[performanceData.length - 1];
+            performanceData.push(Math.min(100, lastPerformance + avgImprovement));
             
-            // Calculate approximate output tokens
-            let totalTokens = 0;
-            minds.forEach(mind => {
-                const output = document.getElementById(`${mind.id}-output`).textContent;
-                totalTokens += Math.floor(output.length / 4); // Rough approximation
-            });
-            document.getElementById('outputTokens').textContent = totalTokens;
+            updateChart();
+            updateMetrics();
+            
+            addLogEntry('improvement', `Improved ${improvements.length} minds by avg ${avgImprovement.toFixed(1)}%`);
+            
+            // Small delay for visual effect
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-        function updateInfoContent(text) {
-            document.getElementById('infoContent').textContent = text;
+        function completeProcessing() {
+            isProcessing = false;
+            
+            updateStatus('inputStatus', 'complete', 'Complete');
+            updateStatus('pipelineStatus', 'complete', 'Complete');
+            
+            document.getElementById('executeBtn').disabled = false;
+            document.getElementById('executeBtn').textContent = '🚀 Execute Recursive Processing';
+            
+            // Hide recursive indicator
+            setTimeout(() => {
+                document.getElementById('recursiveIndicator').classList.remove('active');
+            }, 2000);
+            
+            const totalTime = Date.now() - startTime;
+            addLogEntry('complete', `Pipeline completed in ${totalTime}ms with ${improvementCycles} improvement cycles`);
+            
+            updateMetrics();
+        }
+
+        function updateStatus(elementId, type, text) {
+            const indicator = document.getElementById(elementId);
+            const textElement = document.getElementById(elementId.replace('Status', 'StatusText'));
+            
+            indicator.className = `status-indicator ${type}`;
+            textElement.textContent = text;
+        }
+
+        function updateMetrics() {
+            const totalTime = isProcessing ? Date.now() - startTime : 0;
+            const efficiencyGain = performanceData.length > 1 ? 
+                performanceData[performanceData.length - 1] - performanceData[0] : 0;
+            const accuracyScore = Math.min(100, 85 + efficiencyGain);
+            
+            document.getElementById('processingTime').textContent = `${totalTime}ms`;
+            document.getElementById('improvementCycles').textContent = improvementCycles;
+            document.getElementById('efficiencyGain').textContent = `${efficiencyGain.toFixed(1)}%`;
+            document.getElementById('accuracyScore').textContent = `${accuracyScore.toFixed(1)}%`;
+        }
+
+        function updateChart() {
+            const chart = document.getElementById('improvementChart');
+            chart.innerHTML = '';
+            
+            const maxValue = Math.max(...performanceData);
+            
+            performanceData.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = `${(value / maxValue) * 160}px`;
+                chart.appendChild(bar);
+            });
+        }
+
+        function addLogEntry(type, message) {
+            const logEntries = document.getElementById('logEntries');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const time = new Date().toLocaleTimeString().slice(-8, -3);
+            entry.innerHTML = `
+                <div class="log-time">${time}</div>
+                <div class="log-type ${type}">${type}</div>
+                <div>${message}</div>
+            `;
+            
+            logEntries.insertBefore(entry, logEntries.firstChild);
+            
+            // Keep only last 20 entries
+            while (logEntries.children.length > 20) {
+                logEntries.removeChild(logEntries.lastChild);
+            }
+        }
+
+        async function typeText(element, text) {
+            element.textContent = '';
+            const speed = Math.max(10, Math.min(30, 1000 / text.length));
+            
+            for (let i = 0; i < text.length; i++) {
+                element.textContent += text.charAt(i);
+                await new Promise(resolve => setTimeout(resolve, speed));
+            }
         }
 
         function resetDemo() {
             isProcessing = false;
-            currentStep = 0;
-            document.getElementById('executeBtn').disabled = false;
-            document.getElementById('executeBtn').textContent = '🚀 Process Through CRUX Pipeline';
-            document.getElementById('taskInput').value = '';
+            improvementCycles = 0;
+            performanceData = [100];
             
-            minds.forEach(mind => {
-                const step = document.getElementById(`${mind.id}-step`);
-                const status = document.getElementById(`${mind.id}-status`);
-                const output = document.getElementById(`${mind.id}-output`);
-                
-                step.classList.remove('active', 'completed');
-                status.textContent = 'Waiting';
+            document.querySelectorAll('.mind-step').forEach(step => {
+                step.classList.remove('active', 'completed', 'improved');
+            });
+            
+            document.querySelectorAll('.mind-output').forEach(output => {
                 output.textContent = '';
             });
             
-            updateStats();
-            updateInfoContent('CRUX processes your input through specialized cognitive minds, each handling a different aspect of reasoning. Enter a task above to see the pipeline in action.');
+            // Reset efficiency values
+            cognitiveMinds.forEach(mind => {
+                document.getElementById(`efficiency-${mind.id}`).textContent = `${mind.baseEfficiency}%`;
+                document.getElementById(`time-${mind.id}`).textContent = '--';
+                document.getElementById(`improvements-${mind.id}`).textContent = '0';
+            });
+            
+            updateStatus('inputStatus', '', 'Ready');
+            updateStatus('pipelineStatus', '', 'Idle');
+            
+            document.getElementById('executeBtn').disabled = false;
+            document.getElementById('executeBtn').textContent = '🚀 Execute Recursive Processing';
+            document.getElementById('taskInput').value = '';
+            document.getElementById('recursiveIndicator').classList.remove('active');
+            
+            updateMetrics();
+            updateChart();
+            
+            addLogEntry('complete', 'Demo reset - ready for new task');
         }
 
         function toggleAutoMode() {
             autoMode = !autoMode;
-            const btn = event.target;
-            btn.textContent = autoMode ? 'Auto Mode: ON' : 'Auto Mode';
-            btn.style.background = autoMode ? 'rgba(16, 185, 129, 0.2)' : '';
+            const btn = document.getElementById('autoBtn');
             
             if (autoMode) {
-                const examples = [
-                    'Plan a weekend camping trip for 4 people',
-                    'Debug why my Python web app is running slowly',
-                    'Write a creative story about an AI discovering emotions',
-                    'Analyze the pros and cons of remote work'
-                ];
-                
-                let exampleIndex = 0;
-                processInterval = setInterval(() => {
-                    if (!isProcessing) {
-                        setPrompt(examples[exampleIndex]);
-                        setTimeout(() => {
-                            startProcessing();
-                        }, 1000);
-                        exampleIndex = (exampleIndex + 1) % examples.length;
-                    }
-                }, 15000);
+                btn.textContent = 'Auto Mode: ON';
+                btn.style.background = 'linear-gradient(135deg, var(--accent), var(--secondary))';
+                startAutoMode();
             } else {
-                clearInterval(processInterval);
+                btn.textContent = 'Auto Mode';
+                btn.style.background = '';
+                stopAutoMode();
             }
         }
 
-        // Update timer during processing
-        setInterval(() => {
-            if (isProcessing) {
-                updateStats();
-            }
-        }, 1000);
+        function startAutoMode() {
+            const tasks = [
+                'Develop a comprehensive AI strategy for a Fortune 500 company entering the healthcare market',
+                'Design and implement a distributed microservices architecture for handling 10M+ daily transactions',
+                'Create a machine learning pipeline for real-time fraud detection with 99.9% accuracy',
+                'Optimize a React application with 50+ components for sub-second load times'
+            ];
+            
+            let taskIndex = 0;
+            
+            const autoInterval = setInterval(() => {
+                if (!autoMode) {
+                    clearInterval(autoInterval);
+                    return;
+                }
+                
+                if (!isProcessing) {
+                    setTask(tasks[taskIndex]);
+                    setTimeout(() => {
+                        startProcessing();
+                    }, 1000);
+                    taskIndex = (taskIndex + 1) % tasks.length;
+                }
+            }, 20000);
+        }
 
-        // Initialize
-        resetDemo();
+        function stopAutoMode() {
+            // Auto mode stopped - interval cleared by startAutoMode
+        }
+
+        // Helper functions for mind processing
+        function calculateComplexity(input) {
+            const factors = [
+                input.length / 100,
+                (input.match(/\b(architecture|system|design|implement|optimize|develop)\b/gi) || []).length,
+                (input.match(/\b(million|billion|\d+M|\d+B)\b/gi) || []).length * 2
+            ];
+            return Math.min(100, factors.reduce((sum, factor) => sum + factor, 0) * 10);
+        }
+
+        function detectDomain(input) {
+            const domains = {
+                'healthcare': /health|medical|patient|clinical/gi,
+                'finance': /financial|trading|payment|transaction|fraud/gi,
+                'technology': /software|system|architecture|microservice|API/gi,
+                'ai': /AI|machine learning|neural|model|algorithm/gi
+            };
+            
+            for (const [domain, regex] of Object.entries(domains)) {
+                if (regex.test(input)) return domain;
+            }
+            return 'general';
+        }
+
+        function extractRequirements(input) {
+            const requirements = [];
+            if (input.includes('real-time')) requirements.push('Real-time processing');
+            if (input.includes('scalable') || input.includes('scale')) requirements.push('Scalability');
+            if (input.includes('secure') || input.includes('security')) requirements.push('Security');
+            if (input.includes('performance') || input.includes('fast')) requirements.push('High performance');
+            return requirements.length > 0 ? requirements : ['Standard implementation'];
+        }
+
+        async function generateReflection(input, context) {
+            const aspects = [
+                'Task complexity analysis completed',
+                'Identified key technical challenges',
+                'Evaluated resource requirements',
+                'Assessed risk factors and mitigation strategies'
+            ];
+            return aspects[Math.floor(Math.random() * aspects.length)];
+        }
+
+        function identifyOptimizations(context) {
+            const optimizations = [
+                'Parallel processing pathway identified',
+                'Memory usage optimization available',
+                'Algorithm efficiency improvement possible',
+                'Resource allocation enhancement detected'
+            ];
+            return optimizations.slice(0, Math.floor(Math.random() * 3) + 1);
+        }
+
+        async function generateStrategy(input, context) {
+            const complexity = context.previousResults[0]?.result.complexity || 50;
+            const stepCount = Math.floor(complexity / 10) + 3;
+            
+            return {
+                steps: Array(stepCount).fill(0).map((_, i) => `Strategic step ${i + 1}`),
+                efficiency: 85 + Math.random() * 10,
+                timeline: `${stepCount * 2} weeks estimated`
+            };
+        }
+
+        async function optimizePlan(strategy, context) {
+            return {
+                ...strategy,
+                efficiency: Math.min(100, strategy.efficiency + 5),
+                optimizations: ['Parallelization applied', 'Resource optimization implemented']
+            };
+        }
+
+        async function executeStrategy(input, context) {
+            return {
+                performance: 88 + Math.random() * 8,
+                completionTime: Math.random() * 1000 + 500,
+                qualityScore: 92 + Math.random() * 6
+            };
+        }
+
+        async function adaptExecution(execution, context) {
+            return {
+                performanceGain: Math.random() * 5 + 2,
+                adaptations: ['Real-time optimization applied', 'Performance tuning completed']
+            };
+        }
+
+        async function analyzePerformance(input, context) {
+            return {
+                metrics: {
+                    accuracy: 94 + Math.random() * 4,
+                    efficiency: 89 + Math.random() * 8,
+                    reliability: 96 + Math.random() * 3
+                },
+                recommendations: ['Continue current approach', 'Monitor performance metrics']
+            };
+        }
+
+        async function generateImprovements(analysis, context) {
+            return {
+                efficiencyGain: Math.random() * 3 + 1,
+                suggestions: ['Algorithm optimization', 'Resource reallocation', 'Caching strategy']
+            };
+        }
+
+        async function recursiveOptimization(input, context) {
+            return {
+                pipelineEfficiency: 91 + Math.random() * 6,
+                crossMindOptimizations: Math.floor(Math.random() * 3) + 1
+            };
+        }
+
+        async function improvePipeline(optimization, context) {
+            return {
+                efficiencyGain: Math.random() * 4 + 2,
+                systemImprovements: ['Pipeline optimization', 'Cross-mind coordination enhanced']
+            };
+        }
+
+        function formatOutput(mind, result) {
+            switch (mind.id) {
+                case 'input_analysis':
+                    return `Complexity: ${result.complexity.toFixed(1)}%\nDomain: ${result.domain}\nRequirements: ${result.requirements.join(', ')}`;
+                case 'reflection':
+                    return `${result.reflection}\nOptimizations: ${result.optimizations.join(', ')}\nSelf-improvements: ${result.selfImprovements}`;
+                case 'planning':
+                    return `Strategy: ${result.strategy.steps.length} steps planned\nEfficiency: ${result.strategy.efficiency.toFixed(1)}%\nTimeline: ${result.strategy.timeline}`;
+                case 'execution':
+                    return `Performance: ${result.execution.performance.toFixed(1)}%\nQuality: ${result.execution.qualityScore.toFixed(1)}%\nAdaptations: ${result.adaptations.performanceGain.toFixed(1)}% gain`;
+                case 'analysis':
+                    return `Accuracy: ${result.analysis.metrics.accuracy.toFixed(1)}%\nEfficiency: ${result.analysis.metrics.efficiency.toFixed(1)}%\nReliability: ${result.analysis.metrics.reliability.toFixed(1)}%`;
+                case 'recursive_optimization':
+                    return `Pipeline efficiency: ${result.optimization.pipelineEfficiency.toFixed(1)}%\nOptimizations: ${result.optimization.crossMindOptimizations}\nGain: ${result.pipelineImprovements.efficiencyGain.toFixed(1)}%`;
+                default:
+                    return 'Processing completed successfully';
+            }
+        }
+
+        // Initialize demo on load
+        document.addEventListener('DOMContentLoaded', initializeDemo);
     </script>
 </body>
 </html>
